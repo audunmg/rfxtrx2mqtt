@@ -242,10 +242,15 @@ def setup_devices(config):
             entity_config = {"name": entity_config}
         _REGISTRY[id] = entity_config
 
+        device = {"model": f"{pkt.__class__.__name__} {pkt.type_string}",
+                  "identifiers": [ f"rfxtrx2mqtt-{id}" ],
+                  "name": entity_config['name']
+                  }
         for entity in get_event_entities(event, entity_config):
 
             payload = {
                 "name": f"{entity_config['name']} {entity.value_name}",
+                "device": device,
                 "unique_id": f"rfxtrx2mqtt-{id}-{entity.value_name.lower().replace(' ', '')}",
                 "state_topic": f"{config['mqtt']['prefix']}/{entity.state_topic}",
             }
