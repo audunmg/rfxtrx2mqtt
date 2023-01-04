@@ -159,8 +159,8 @@ def get_event_entities(event, config):
 
             if name in STATE_TRANSFORMATION:
                 state = STATE_TRANSFORMATION[name](state)
-
-            yield Entity(domain=domain, id=entity, value_name=name, state=state)
+            if not ((name == "Command" and domain == "sensor") or (name != "Command" and domain == "binary_sensor")):
+                yield Entity(domain=domain, id=entity, value_name=name, state=state)
 
 
 def setup_unknown_devices_sensor(config):

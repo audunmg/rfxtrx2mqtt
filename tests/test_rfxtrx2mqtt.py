@@ -104,6 +104,25 @@ def test_get_event_entities():
             state="-72",
         ),
     ]
+    hex_ = "0b110029006c5dc60a010f70"
+    pkt = rfxtrx2mqtt.bytes_to_pkt(hex_)
+    event = rfxtrx2mqtt.pkt_to_event(pkt)
+    entities = list(rfxtrx2mqtt.get_event_entities(event, {"name": "testing"}))
+    assert entities == [
+        rfxtrx2mqtt.Entity(
+            domain="binary_sensor",
+            id="testing_command",
+            value_name="Command",
+            state="On",
+        ),
+        rfxtrx2mqtt.Entity(
+            domain="sensor",
+            id="testing_rssi_numeric",
+            value_name="Rssi numeric",
+            state="-64",
+        )
+    ]
+
 
 
 def test_battery_convert():
