@@ -71,6 +71,7 @@ def _rssi_convert(value):
 STATE_TRANSFORMATION = {
     "Battery numeric": _battery_convert,
     "Rssi numeric": _rssi_convert,
+    "Command": str.upper,
 }
 
 
@@ -203,6 +204,7 @@ def event_callback(config, event):
 
     LOG.debug("Event data: " + "".join(f"{x:02x}" for x in event.data))
 
+    dev_id = ''
     if not event.device.id_string:
         return
 
@@ -211,15 +213,16 @@ def event_callback(config, event):
         return
 
     if isinstance(event, rfxtrxmod.ControlEvent):
-        LOG.warning("Ignoring control event")
-        return
+        dev_id = pkt_to_id(event.device)
+        LOG.warning(f"Control event from id: {dev_id}")
 
-    id = pkt_to_id(event.pkt)
+    if isinstance(event, rfxtrxmod.SensorEvent):
+        dev_id = pkt_to_id(event.pkt)
 
-    if id not in _REGISTRY:
+    if dev_id not in _REGISTRY:
         return handle_unknown_devices(config, event)
 
-    for entity in get_event_entities(event, _REGISTRY[id]):
+    for entity in get_event_entities(event, _REGISTRY[dev_id]):
         payload = str(entity.state)
         mqtt_publish(config["mqtt"]["prefix"], entity.state_topic, payload)
 
